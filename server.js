@@ -56,15 +56,20 @@ app.post('/upload', upload.single('file'), (req, res) => {
   res.json(cleanedData);
 });
 
-// Function to clean non-printable characters (if necessary)
+// Function to clean non-printable characters and remove unnecessary spaces from the headers
 const sanitizeData = (data) => {
-  return data.map(row => row.map(cell => {
-    if (typeof cell === 'string') {
-      // Remove non-printable characters (optional)
-      return cell.replace(/[^\x20-\x7E]/g, '');
-    }
-    return cell;
-  }));
+  const headers = data[0].map(header => header.trim().replace(/\s+/g, '_')); // Sanitize headers
+  const cleanedData = data.map((row, index) => {
+    if (index === 0) return headers; // Replace headers with cleaned ones
+    return row.map(cell => {
+      if (typeof cell === 'string') {
+        // Remove non-printable characters (optional)
+        return cell.replace(/[^\x20-\x7E]/g, '');
+      }
+      return cell;
+    });
+  });
+  return cleanedData;
 };
 
 // Start server
